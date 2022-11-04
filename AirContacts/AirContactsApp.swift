@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import Contacts
 
 @main
 struct AirContactsApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
+                .environmentObject(MainViewModel())
         }
     }
 }
