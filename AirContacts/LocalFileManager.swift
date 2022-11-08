@@ -9,20 +9,20 @@ import SwiftUI
 import Contacts
 
 class LocalFileManager {
-    
     static let instance = LocalFileManager()
     
-    func saveContactsInDocument(contacts : [CNContact]) {
-        
-        let documentPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let fileURL = documentPath.appendingPathComponent("/AirContacts.vcf")
-        
-        let data : NSData?
+    let fileURL = FileManager
+        .default
+        .urls(for: .documentDirectory, in: .userDomainMask)
+        .first!
+        .appendingPathComponent("/AirContacts.vcf")
+    
+    func saveContactsInFile(contacts : [CNContact]) {
+        let data: NSData?
         do {
             try data = CNContactVCardSerialization.data(with: contacts) as NSData
             do {
                 try data?.write(to: fileURL, options: .atomic)
-                print(fileURL.absoluteString)
             }
             catch {
                 print("Failed to write!")
@@ -30,6 +30,25 @@ class LocalFileManager {
         }
         catch {
             print("Failed!")
+        }
+    }
+    
+    func fileExists(path: String) -> Bool {
+        if FileManager.default.fileExists(atPath: path) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
+    func fileModificationDate(path: String) -> Date? {
+        do {
+            let attr = try FileManager.default.attributesOfItem(atPath: path)
+            return attr[FileAttributeKey.modificationDate] as? Date
+        }
+        catch {
+            return nil
         }
     }
     

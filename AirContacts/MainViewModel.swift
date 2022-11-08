@@ -11,15 +11,14 @@ import Contacts
 class MainViewModel: ObservableObject {
     let manager = LocalFileManager.instance
     
-    func fetchAllContacts() -> [CNContact] {
-        
-        var contacts : [CNContact] = []
+    func fetchContacts() -> [CNContact] {
+        var contacts = [CNContact]()
         
         let contactStore = CNContactStore()
-        let fetchReq = CNContactFetchRequest.init(keysToFetch: [CNContactVCardSerialization.descriptorForRequiredKeys()])
+        let fetchRequest = CNContactFetchRequest.init(keysToFetch: [CNContactVCardSerialization.descriptorForRequiredKeys()])
         
         do {
-            try contactStore.enumerateContacts(with: fetchReq) { (contact, end) in
+            try contactStore.enumerateContacts(with: fetchRequest) { (contact, end) in
                 contacts.append(contact)
             }
         }
@@ -29,4 +28,5 @@ class MainViewModel: ObservableObject {
         
         return contacts
     }
+    
 }

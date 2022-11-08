@@ -13,15 +13,18 @@ struct MainView: View {
     @EnvironmentObject var viewModel: MainViewModel
     
     @State var wasButtonClicked = false
+    @State var shouldShowShareButton = false
+    @State var fileCreationDate: Date?
     
     var body: some View {
         VStack {
             Button("Fetch Contacts") {
-                wasButtonClicked = true
-                
                 DispatchQueue.global(qos: .userInitiated).async {
-                    viewModel.manager.saveContactsInDocument(contacts: viewModel.fetchAllContacts())
+                    viewModel.manager.saveContactsInFile(contacts: viewModel.fetchContacts())
+                    fileCreationDate = viewModel.manager.fileModificationDate(path: viewModel.manager.fileURL.path)
                 }
+                wasButtonClicked = true
+                shouldShowShareButton = true
             }
             
             Spacer()
@@ -30,11 +33,24 @@ struct MainView: View {
             if wasButtonClicked {
                 Text("File created!")
                     .foregroundColor(Color(.green))
-                
-                ShareLink(item: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("/AirContacts.vcf"))
             }
+            
+            if shouldShowShareButton {
+                ShareLink(item: viewModel.manager.fileURL)
+                
+                if fileCreationDate != nil {
+                    Text(fileCreationDate!.formatted())
+                }
+            }
+            
         }
         .padding()
+        .onAppear() {
+            if viewModel.manager.fileExists(path: viewModel.manager.fileURL.path) {
+                shouldShowShareButton = true
+                fileCreationDate = viewModel.manager.fileModificationDate(path: viewModel.manager.fileURL.path)
+            }
+        }
     }
 }
 
